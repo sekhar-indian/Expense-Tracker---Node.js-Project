@@ -9,6 +9,7 @@ async function  singupform (event){
     console.log(data)
     try{
         const singupform = await axios.post('http://localhost:3000/singupformdata',data);
+        event.target.reset()
         console.log('ok')
     }catch(err){
         console.log('err')
