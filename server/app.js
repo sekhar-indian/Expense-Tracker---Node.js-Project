@@ -2,7 +2,10 @@ const express=require('express');
 const app=express();
 const cors=require('cors');
 const bodyParser=require('body-parser');
-const sequelize=require('./models/signup');
+const sequelize=require('./util/dbConection');
+
+const Userdb=require('./models/signup');
+const Expense=require('./models/expense')
 
 // const admin=require('./routers/admin');
 const user=require('./routers/user');
@@ -13,10 +16,14 @@ app.use(bodyParser.json());
 // app.use(admin);
 app.use(user);
 
-sequelize.sync()
-.then(res=> console.log('database conection ok'))
+Expense.belongsTo(Userdb,{constraints:true,onDelete:'CASCADE'});
+Userdb.hasMany(Expense)
+sequelize
+    .sync({focus:true})
+    .then(res=>{
+    app.listen(3000,()=>{
+        console.log('server ok')
+    })
+})
 .catch(err=>console.log(err))
 
-app.listen(3000,()=>{
-    console.log('server ok')
-})

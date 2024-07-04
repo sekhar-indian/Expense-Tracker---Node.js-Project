@@ -7,6 +7,7 @@ router.get('/',(req,res,next)=>{
     console.log('ok')
     })
 router.post('/singupformdata',maincon.singupformdata);
-router.post('/loginformdata',maincon.loginformdata)
+router.post('/loginformdata',maincon.loginformdata);
+router.post('/expense',maincon.expensepost)
 
 module.exports=router;
