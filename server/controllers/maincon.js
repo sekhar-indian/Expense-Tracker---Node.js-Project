@@ -1,7 +1,10 @@
 const squelize=require('../models/signup')
 const Expense=require('../models/expense');
+const jwt=require('jsonwebtoken')
+
 
 const bcrypt=require('bcrypt');
+const { where } = require('sequelize');
 exports.singupformdata= async (req,res,next)=>{
     const {name,phone,email,password}=req.body;  
     const bcryptPassword=await bcrypt.hash(password,10)
@@ -29,7 +32,9 @@ exports.loginformdata=async (req,res,next)=>{
         const validPassword=await bcrypt.compare(password,user.password);
         console.log(validPassword)
          if(validPassword){
-            res.status(200).json({userid:user.id})
+            const jwtToken=jwt.sign({userid:user.id},'munisekhar')
+            res.status(200)
+            res.send(jwtToken)
          }else{
             res.status(401).json({status:401,masage:"password not mach"})
          }
@@ -42,18 +47,23 @@ exports.loginformdata=async (req,res,next)=>{
 }
 
 exports.expensepost=async(req,res,next)=>{
-    const {expense,dicription,expenses,userid}=req.body;
-    console.log(userid)
+    const {expense,dicription,expenses}=req.body;
     try{
         const expensAsddingDb=Expense.create({
             expense:expense,
             dicription:dicription,
             expenses:expenses,
-            userId:userid
+            userId:req.userid
         })
         res.status(200).send({masage:"ok"})
     }catch(err){
         console.log(err)
     }
 
+}
+
+exports.getDataExpenses=async (req,res,next)=>{
+    const userid=req.userid;
+    const data= await Expense.findAll({where:{userId:userid}})
+    res.status(200).send(data);
 }

@@ -10,7 +10,7 @@ async function loginform(event){
         const loginformData= await axios.post('http://localhost:3000/loginformdata',data)
         if(loginformData.status==200){
             alert("login sucsuss")
-            localStorage.setItem('userid',loginformData.data.userid);
+            localStorage.setItem('jwtToken',loginformData.data);
             window.location.href="../expens/expens.html"
         }
         console.log(loginformData.status)

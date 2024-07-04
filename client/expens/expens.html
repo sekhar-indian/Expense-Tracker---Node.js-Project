@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="expens.css" ></link>
     <title>Document</title>
 </head>
-<body>
+<div class="homepage">
     <form class="form-container" onsubmit="expenseAdd(event)">
         <h2 class="heading-container">Add expenses</h2>
         <input type="text" class="input-container" placeholder="Choose Expense" name="expense">
@@ -20,9 +20,11 @@
         </select>
         <button type="submit" class="button-container">Add</button>     
     </form>
-   
+   <div id="dataElement">
+
+   </div>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="expens.js"></script>
-</body>
-</html>
+</div>
+</html> 
