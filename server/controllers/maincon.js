@@ -1,10 +1,21 @@
-const squelize=require('../models/signup')
+//database table
+const Orders=require('../models/orders');
+const squelize=require('../models/signup');
 const Expense=require('../models/expense');
+const { where } = require('sequelize');
+require('dotenv').config();
+
+//Razorpay
+const Razorpay=require('razorpay');
+
+//jsonWebToken
 const jwt=require('jsonwebtoken')
 
-
+//bcrypt
 const bcrypt=require('bcrypt');
-const { where } = require('sequelize');
+
+
+//singupformdata
 exports.singupformdata= async (req,res,next)=>{
     const {name,phone,email,password}=req.body;  
     const bcryptPassword=await bcrypt.hash(password,10)
@@ -21,6 +32,7 @@ exports.singupformdata= async (req,res,next)=>{
     }
 }
 
+//loginformdata
 exports.loginformdata=async (req,res,next)=>{
     const {email,password}=req.body;
     console.log(password)
@@ -43,9 +55,9 @@ exports.loginformdata=async (req,res,next)=>{
       }
     }catch(err){
     }
-    
 }
 
+// expensepost
 exports.expensepost=async(req,res,next)=>{
     const {expense,dicription,expenses}=req.body;
     try{
@@ -59,11 +71,40 @@ exports.expensepost=async(req,res,next)=>{
     }catch(err){
         console.log(err)
     }
-
 }
 
+//getDataExpenses
 exports.getDataExpenses=async (req,res,next)=>{
     const userid=req.userid;
-    const data= await Expense.findAll({where:{userId:userid}})
+    const data= await Expense.findAll({where:{userId:userid}});
     res.status(200).send(data);
+}
+
+//expenseDelete
+exports.expenseDelete=async (req,res,next)=>{
+    const id=req.params.id
+    console.log(id)
+    const deleteexpens= await Expense.destroy({where:{id:id}})
+    .then(re=>res.sendStatus(200))
+    .catch(er=>res.sendStatus(401))
+}
+
+//premium
+exports.premium= async (req,res,next)=>{
+    var instance = new Razorpay({
+        key_id: process.env.KEY_ID,
+        key_secret:process.env.KEY_SECRET,
+      });
+    const amount=400*100;
+   try{
+    const order= await instance.orders.create ({amount,currency:"INR"})
+    const orderTable = await Orders.create({
+                paymentId:order.id,
+                status:"pending",
+                userId:req.userid
+            })
+    res.status(201).json({ orderId: order.id, amount: order.amount, currency: order.currency })
+   }catch(err){
+    res.status(500).json({ message: 'Something went wrong', error: err.message });
+   }
 }

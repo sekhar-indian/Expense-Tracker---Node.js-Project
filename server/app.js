@@ -3,13 +3,12 @@ const app=express();
 const cors=require('cors');
 const bodyParser=require('body-parser');
 const sequelize=require('./util/dbConection');
-
 const Userdb=require('./models/signup');
-const Expense=require('./models/expense')
+const Expense=require('./models/expense');
+const Orders=require('./models/orders');
 
 // const admin=require('./routers/admin');
 const user=require('./routers/user');
-
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -18,6 +17,8 @@ app.use(user);
 
 Expense.belongsTo(Userdb,{constraints:true,onDelete:'CASCADE'});
 Userdb.hasMany(Expense)
+Orders.belongsTo(Userdb,{constraints:true,onDelete:'CASCADE'});
+Userdb.hasMany(Orders)
 sequelize
     .sync({focus:true})
     .then(res=>{

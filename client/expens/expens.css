@@ -8,7 +8,7 @@ body{
    margin: 10px;
    font-family: roboto; 
    text-align: center;
-   width: 400px;
+   width: 50%;
    border-style: none;
 }
 .button-container{
@@ -54,4 +54,15 @@ body{
     border: solid white;
     height: 40px;
     margin-left:10px;
+}
+
+.premium{
+    border: solid black;
+    background-color: #FFD700;
+    color:rgb(214, 22, 22);
+    border-radius: 90px;
+    width: 95px;
+    height: 30px;
+    font-family: bold;
+    
 }
