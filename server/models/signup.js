@@ -30,6 +30,10 @@ const signupdata=sequelize.define('users',{
     premium:{
         type: Sequelize.BOOLEAN,
         defaultValue: false
+    },
+    totalamount:{
+        type:Sequelize.INTEGER,
+        defaultValue:0
     }
 
 

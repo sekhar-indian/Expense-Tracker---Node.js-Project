@@ -1,6 +1,4 @@
 
-let  Primium;
-
 async function expenseAdd(event){
     event.preventDefault()
    
@@ -26,31 +24,27 @@ try{
 }
 
 window.onload=()=>{
-    getDataExpenses()
-    checkPrinium()
-    
+    getDataExpenses() 
+    jwtTokenPrimium=localStorage.getItem('primium');
+    decodeToken=parseJwt(jwtTokenPrimium)
+    if(decodeToken.premium){
+        
+        document.getElementById('rzp-button1').style.visibility = 'hidden'; 
+        document.getElementById('massage').innerHTML = `<button onclick='leaderboard(event)' >show leadr board</button>`
+    }
 }
 
-function checkPrinium(){
-    const jwtToken=localStorage.getItem('jwtToken');
-    const data=axios.get('http://localhost:3000/checkPrinium',{
-        headers:{
-            'Authorization': `Bearer ${jwtToken}`
-}}).then(res=>{
-    console.log(res.data)
-    if(!res.data){
-        const elem = document.getElementById('rzp-button1');
-        elem.style.display = 'block';
-     
-    }
-    console.log('ok')
-    
-}).catch(err=>{
-    console.log(err);
-  
-       
-})
+function parseJwt(token) {
+    // Example implementation to decode JWT token
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
 }
+
 
 function getDataExpenses(){
  const jwtToken=localStorage.getItem('jwtToken');
@@ -83,9 +77,14 @@ function getDataExpenses(){
 
 //delete button finction
 function deleteData(event,i){
+    const jwtToken=localStorage.getItem('jwtToken');
     console.log(i);
     const id = event.target.parentElement.id;
-    axios.get(`http://localhost:3000/expenseDelete/${id}`)
+    axios.get(`http://localhost:3000/expenseDelete/${id}`,{
+        headers:{
+            'Authorization': `Bearer ${jwtToken}`
+        }
+    })
     .then(re=>{
         getDataExpenses()
         console.log(re)
@@ -119,8 +118,12 @@ document.getElementById('rzp-button1').onclick = function(e){
                         headers: {
                             'Authorization': `Bearer ${jwtToken}`
                         }
+                    }).then(res=>{
+                        alert('success')
+                    localStorage.setItem('primium',res.data)
+                    document.getElementById('rzp-button1').style.visibility = 'hidden'; 
+                    leaderboard();
                     })
-                    alert('success')
 
                 }catch(err){
                     alert('Somthing wrong')
@@ -135,4 +138,27 @@ document.getElementById('rzp-button1').onclick = function(e){
     }).catch(err=>{
         console.log("err",err)
     })
+}
+
+
+
+
+function leaderboard(){
+   
+    axios.get('http://localhost:3000/leaderboard')
+    
+    .then(res=>{
+        let dataObj = res.data;
+        console.log(res)
+        // Convert the object to an array of values
+        let data = Object.values(dataObj);
+        data.sort((a, b) => b.amount - a.amount);
+        const ele = document.getElementById('leederboard');
+        for (let i = 0; i < data.length; i++) {
+            let li = document.createElement('li');
+            li.innerHTML = `${data[i].name} ${data[i].totalamount}`;
+            ele.appendChild(li);
+        }
+
+    }).catch(er=>console.log(er))
 }

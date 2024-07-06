@@ -7,10 +7,7 @@
     <title>Document</title>
 </head>
 <div class="homepage">
-    <button class="premium" id="rzp-button1" hidden>PREMIUM</button>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-    <h1 di="pd"></h1>
+    
     <form class="form-container" onsubmit="expenseAdd(event)">
         
         <h2 class="heading-container">Add expenses</h2>
@@ -29,10 +26,16 @@
         <button type="submit" class="button-container">Add</button>
 
     </form>
+    <button class="premium" id="rzp-button1">PREMIUM</button>
+    
+
+    <div id="massage"></div>
    <div id="dataElement">
-
+    
    </div>
+   <div id="leederboard"></div>
 
+   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="expens.js"></script>
 </div>

@@ -8,7 +8,7 @@ const expense=sequelize.define('dalyexpense',{
         allowNull:false,
     },
     dicription:{
-        type:Sequelize.STRING,
+        type:Sequelize.INTEGER,
         allowNull:false,
     },
     expenses:{

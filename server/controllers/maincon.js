@@ -61,13 +61,21 @@ exports.loginformdata=async (req,res,next)=>{
 // expensepost
 exports.expensepost=async(req,res,next)=>{
     const {expense,dicription,expenses}=req.body;
-    try{
+    try{ 
         const expensAsddingDb=Expense.create({
             expense:expense,
             dicription:dicription,
             expenses:expenses,
-            userId:req.userid
+            userId:req.userid 
         })
+        const userRecord = await squelize.findOne({ where: { id: req.userid } });
+
+        if (userRecord) {
+            // Update totalamount in the user record
+            const updatedTotalAmount = userRecord.totalamount + Number(dicription); // Adjust as per your logic
+
+            await userRecord.update({ totalamount: updatedTotalAmount });
+        }
         res.status(200).send({masage:"ok"})
     }catch(err){
         console.log(err)
@@ -83,11 +91,20 @@ exports.getDataExpenses=async (req,res,next)=>{
 
 //expenseDelete
 exports.expenseDelete=async (req,res,next)=>{
-    const id=req.params.id
-    console.log(id)
-    const deleteexpens= await Expense.destroy({where:{id:id}})
-    .then(re=>res.sendStatus(200))
-    .catch(er=>res.sendStatus(401))
+    const id=req.params.id;
+    const userid=req.userid;
+    try{
+        const expense=await Expense.findOne({where:{id:id}});
+        expenseAmount=await  expense.dicription
+        const user=await squelize.findOne({where:{id:userid}});
+        const userAmount= await user.totalamount-expenseAmount
+        const update=await user.update({totalamount:userAmount})
+        const deleteexpens = await Expense.destroy({where:{id:id}});
+        res.send(200)
+    }catch(err){
+        res.send(404)
+    }
+    
 }
 
 //premium
@@ -118,25 +135,24 @@ exports.premiumUpdate=async (req,res,next)=>{
         const order= await Orders.findOne({where:{orderId:orderId}})
         const up= await order.update({paymentId:paymentId,status:'succuss'});
         const user=await squelize.findOne({where:{id:userid}});
-        const updateUser= await user.update({premium:true})
-        res.status(201).json(updateUser);
+        const updateUser= await user.update({premium:true});
+        const jwtToken=jwt.sign({id:req.userid,premium:true},'munisekhar')
+        res.status(201).json(jwtToken);
     }catch(err){
         res.status(404).json(err);
     }
 } 
 
-exports.checkPrinium= async (req,res,next)=>{
-    const userid=req.userid;
-try{
-    const user=await squelize.findOne({where:{id:userid}});
-    if(user.premium==true){
-        res.status(200);
-    res.send(user.premium);
-    }else{
-        res.status(404);
+
+
+exports.leaderboard=async (req,res,next)=>{
+    try{
+        let users= await squelize.findAll({
+            attributes:['name','totalamount'],
+            order:[['totalamount','DESC']]});
+            res.json(users);
+    }catch(err){
+      res.status(404)
+      res.send(err)
     }
-    
-}catch(er){
-    res.status(404);
-}
 }
