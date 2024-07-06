@@ -8,7 +8,7 @@ router.post('/loginformdata',maincon.loginformdata);
 router.post('/expense',userAuthentication,maincon.expensepost);
 router.get('/expenseDelete/:id',maincon.expenseDelete);
 router.get('/premium',userAuthentication,maincon.premium);
-
-
+router.post('/premiumUpdate',userAuthentication,maincon.premiumUpdate)
+router.get('/checkPrinium',userAuthentication,maincon.checkPrinium);
 module.exports=router;
 

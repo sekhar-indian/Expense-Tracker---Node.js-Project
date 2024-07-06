@@ -13,6 +13,7 @@ const jwt=require('jsonwebtoken')
 
 //bcrypt
 const bcrypt=require('bcrypt');
+const sequelize = require('../util/dbConection');
 
 
 //singupformdata
@@ -46,7 +47,7 @@ exports.loginformdata=async (req,res,next)=>{
          if(validPassword){
             const jwtToken=jwt.sign({userid:user.id},'munisekhar')
             res.status(200)
-            res.send(jwtToken)
+            res.json(jwtToken);
          }else{
             res.status(401).json({status:401,masage:"password not mach"})
          }
@@ -99,7 +100,7 @@ exports.premium= async (req,res,next)=>{
    try{
     const order= await instance.orders.create ({amount,currency:"INR"})
     const orderTable = await Orders.create({
-                paymentId:order.id,
+                orderId:order.id,
                 status:"pending",
                 userId:req.userid
             })
@@ -107,4 +108,35 @@ exports.premium= async (req,res,next)=>{
    }catch(err){
     res.status(500).json({ message: 'Something went wrong', error: err.message });
    }
+}
+
+//premiumok
+exports.premiumUpdate=async (req,res,next)=>{
+    const userid=req.userid;
+    const {orderId,paymentId}=req.body;
+    try{
+        const order= await Orders.findOne({where:{orderId:orderId}})
+        const up= await order.update({paymentId:paymentId,status:'succuss'});
+        const user=await squelize.findOne({where:{id:userid}});
+        const updateUser= await user.update({premium:true})
+        res.status(201).json(updateUser);
+    }catch(err){
+        res.status(404).json(err);
+    }
+} 
+
+exports.checkPrinium= async (req,res,next)=>{
+    const userid=req.userid;
+try{
+    const user=await squelize.findOne({where:{id:userid}});
+    if(user.premium==true){
+        res.status(200);
+    res.send(user.premium);
+    }else{
+        res.status(404);
+    }
+    
+}catch(er){
+    res.status(404);
+}
 }

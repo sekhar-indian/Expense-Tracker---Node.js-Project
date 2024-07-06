@@ -10,9 +10,12 @@ const orders=sequelize.define('orders',{
         unique:true,
         primaryKey:true
     },
-    paymentId:{
+    orderId:{
         type:Sequelize.STRING,
         allowNull:false,
+    },
+    paymentId:{
+        type:Sequelize.STRING
     },
     status:{
         type:Sequelize.STRING,

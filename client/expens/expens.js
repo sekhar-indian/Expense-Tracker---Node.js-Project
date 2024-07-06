@@ -1,4 +1,5 @@
 
+let  Primium;
 
 async function expenseAdd(event){
     event.preventDefault()
@@ -26,6 +27,29 @@ try{
 
 window.onload=()=>{
     getDataExpenses()
+    checkPrinium()
+    
+}
+
+function checkPrinium(){
+    const jwtToken=localStorage.getItem('jwtToken');
+    const data=axios.get('http://localhost:3000/checkPrinium',{
+        headers:{
+            'Authorization': `Bearer ${jwtToken}`
+}}).then(res=>{
+    console.log(res.data)
+    if(!res.data){
+        const elem = document.getElementById('rzp-button1');
+        elem.style.display = 'block';
+     
+    }
+    console.log('ok')
+    
+}).catch(err=>{
+    console.log(err);
+  
+       
+})
 }
 
 function getDataExpenses(){
@@ -85,24 +109,24 @@ document.getElementById('rzp-button1').onclick = function(e){
 
     var options = {
         "key": "rzp_test_P9yDvw31QolihZ", // Enter the Key ID generated from the Dashboard
-        "amount":amount , // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-        "currency": "INR",
-        "name": "servive", //your business name
-        "description": "Test Transaction",
-        "image": "https://example.com/your_logo",
         "order_id": orderId, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-        "callback_url": "https://eneqd3r9zrjok.x.pipedream.net/",
-        "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
-            "name": "Gaurav Kumar", //your customer's name
-            "email": "gaurav.kumar@example.com",
-            "contact": "9000090000" //Provide the customer's phone number for better conversion rates 
-        },
-        "notes": {
-            "address": "Razorpay Corporate Office"
-        },
-        "theme": {
-            "color": "#3399cc"
+        "handler": async function (response) {
+                try{
+                    const d= await axios.post('http://localhost:3000/premiumUpdate', {
+                        orderId: orderId,
+                        paymentId: response.razorpay_payment_id
+                    }, {
+                        headers: {
+                            'Authorization': `Bearer ${jwtToken}`
+                        }
+                    })
+                    alert('success')
+
+                }catch(err){
+                    alert('Somthing wrong')
+                }
         }
+
     };
 
     var rzp1 = new Razorpay(options);
@@ -112,5 +136,3 @@ document.getElementById('rzp-button1').onclick = function(e){
         console.log("err",err)
     })
 }
-
-
