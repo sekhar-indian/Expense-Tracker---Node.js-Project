@@ -17,8 +17,8 @@ router.get('/leaderboard',maincon.leaderboard)
 
 //forgetpassword
 router.get('/forget/password',Password.forget);
-router.get('/forget/password/:token',Password.updateRequst);
-router.post('/forget/password',Password.update);
+// router.get('/forget/password/:token',Password.updateRequst);
+// router.post('/forget/password',Password.update);
 
 module.exports=router;
 
