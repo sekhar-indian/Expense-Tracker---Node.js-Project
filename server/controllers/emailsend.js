@@ -4,7 +4,7 @@ let defaultClient = instance.ApiClient.instance;
 exports.forget = async (req, res, next) => {
      
   let apiKey = defaultClient.authentications['api-key'];
-  apiKey.apiKey = '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';
+  apiKey.apiKey = '';
   
   let apiInstance = new brevo.TransactionalEmailsApi();
   let sendSmtpEmail = new brevo.SendSmtpEmail();
