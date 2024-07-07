@@ -148,14 +148,14 @@ function leaderboard(){
     axios.get('http://localhost:3000/leaderboard')
     
     .then(res=>{
-        let dataObj = res.data;
-        console.log(res)
-        // Convert the object to an array of values
-        let data = Object.values(dataObj);
-        data.sort((a, b) => b.amount - a.amount);
+       
+        let data =res.data
+       
         const ele = document.getElementById('leederboard');
+        ele.id='leederboards'
+         ele.innerHTML='<h2 class="leaderboard-heading">LEADER BOARD</h2>';
         for (let i = 0; i < data.length; i++) {
-            let li = document.createElement('li');
+            let li = document.createElement('div');
             li.innerHTML = `${data[i].name} ${data[i].totalamount}`;
             ele.appendChild(li);
         }
