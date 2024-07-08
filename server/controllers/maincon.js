@@ -1,19 +1,12 @@
-//database table
-const Orders=require('../models/orders');
-const squelize=require('../models/signup');
-const Expense=require('../models/expense');
-const { where } = require('sequelize');
-require('dotenv').config();
+const Orders=require('../models/orders');//database table
+const squelize=require('../models/signup');//database table
+const Expense=require('../models/expense');//database table
+const { where } = require('sequelize');//database pakage
+require('dotenv').config();//.env file
+const Razorpay=require('razorpay');//Razorpay
+const jwt=require('jsonwebtoken')//jsonWebToken
+const bcrypt=require('bcrypt');//bcrypt
 
-//Razorpay
-const Razorpay=require('razorpay');
-
-//jsonWebToken
-const jwt=require('jsonwebtoken')
-
-//bcrypt
-const bcrypt=require('bcrypt');
-const sequelize = require('../util/dbConection');
 
 
 //singupformdata
@@ -45,7 +38,7 @@ exports.loginformdata=async (req,res,next)=>{
         const validPassword=await bcrypt.compare(password,user.password);
         console.log(validPassword)
          if(validPassword){
-            const jwtToken=jwt.sign({userid:user.id},'munisekhar')
+            const jwtToken=jwt.sign({userid:user.id},'munisekhar',{expiresIn:'1m'});
             res.status(200)
             res.json(jwtToken);
          }else{
@@ -69,24 +62,25 @@ exports.expensepost=async(req,res,next)=>{
             userId:req.userid 
         })
         const userRecord = await squelize.findOne({ where: { id: req.userid } });
-
         if (userRecord) {
-            // Update totalamount in the user record
-            const updatedTotalAmount = userRecord.totalamount + Number(dicription); // Adjust as per your logic
-
+            const updatedTotalAmount = userRecord.totalamount + Number(dicription); 
             await userRecord.update({ totalamount: updatedTotalAmount });
         }
         res.status(200).send({masage:"ok"})
     }catch(err){
-        console.log(err)
+        res.status(404).send({masage:"err"})
     }
 }
 
 //getDataExpenses
 exports.getDataExpenses=async (req,res,next)=>{
     const userid=req.userid;
-    const data= await Expense.findAll({where:{userId:userid}});
-    res.status(200).send(data);
+   try{
+    const data= await Expense.findAll({where:{userId:userid}},{attributes:['id','expense','dicription','expenses']});
+    res.status(200).json(data);
+   }catch(err){
+    res.status(404).send(err)
+   }
 }
 
 //expenseDelete
@@ -107,7 +101,7 @@ exports.expenseDelete=async (req,res,next)=>{
     
 }
 
-//premium
+//premium Razorpay
 exports.premium= async (req,res,next)=>{
     var instance = new Razorpay({
         key_id: process.env.KEY_ID,
@@ -127,6 +121,7 @@ exports.premium= async (req,res,next)=>{
    }
 }
 
+
 //premiumok
 exports.premiumUpdate=async (req,res,next)=>{
     const userid=req.userid;
@@ -136,7 +131,7 @@ exports.premiumUpdate=async (req,res,next)=>{
         const up= await order.update({paymentId:paymentId,status:'succuss'});
         const user=await squelize.findOne({where:{id:userid}});
         const updateUser= await user.update({premium:true});
-        const jwtToken=jwt.sign({id:req.userid,premium:true},'munisekhar')
+        const jwtToken=jwt.sign({id:req.userid,premium:true},'munisekhar',{expiresIn:'1m'})
         res.status(201).json(jwtToken);
     }catch(err){
         res.status(404).json(err);
@@ -144,15 +139,26 @@ exports.premiumUpdate=async (req,res,next)=>{
 } 
 
 
-
+//leader board
 exports.leaderboard=async (req,res,next)=>{
     try{
         let users= await squelize.findAll({
             attributes:['name','totalamount'],
             order:[['totalamount','DESC']]});
-            res.json(users);
+            res.status(200).json(users);
     }catch(err){
       res.status(404)
       res.send(err)
+    }
+}
+
+//expence download button
+exports.downloadButton=async(req,res,next)=>{
+    const userid=req.userid;
+    try{
+     const data= await Expense.findAll({where:{userId:userid}},{attributes:['expense','dicription','expenses']});
+     res.status(200).json(data);
+    }catch(err){
+     res.status(404).send(err);
     }
 }

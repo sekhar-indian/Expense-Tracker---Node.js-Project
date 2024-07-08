@@ -1,25 +1,21 @@
 
 async function expenseAdd(event){
     event.preventDefault()
-   
     const data={
         expense:event.target.expense.value,
         dicription:event.target.dicription.value,
         expenses:event.target.expenses.value,
         userid:localStorage.getItem('userid')
     }
-   const jwtToken=localStorage.getItem('jwtToken');
-
+    const jwtToken=localStorage.getItem('jwtToken');
 try{
-    const postData= await axios.post('http://localhost:3000/expense',data,{
-        headers:{
-            'Authorization': `Bearer ${jwtToken}`
-        }
-    }).then(r=>  getDataExpenses())
-   
+    const postData= await axios.post('http://localhost:3000/expense',data,{headers:{ 'Authorization': `Bearer ${jwtToken}`}});
+    getDataExpenses()
     event.target.reset()
 } catch(err){
-    console.log(err)
+    if(err.response.status==401){
+        window.location.href='../login/login.html'
+    }
 } 
 }
 
@@ -28,7 +24,6 @@ window.onload=()=>{
     jwtTokenPrimium=localStorage.getItem('primium');
     decodeToken=parseJwt(jwtTokenPrimium)
     if(decodeToken.premium){
-        
         document.getElementById('rzp-button1').style.visibility = 'hidden'; 
         document.getElementById('massage').innerHTML = `<button onclick='leaderboard(event)' >show leadr board</button>`
     }
@@ -46,15 +41,10 @@ function parseJwt(token) {
 }
 
 
-function getDataExpenses(){
+async function getDataExpenses(){
  const jwtToken=localStorage.getItem('jwtToken');
-
  try{
-    const data=axios.get('http://localhost:3000/getExpenses',{
-        headers:{
-            'Authorization': `Bearer ${jwtToken}`
-        }
-     }).then(response=>{
+    const response=await axios.get('http://localhost:3000/getExpenses',{headers:{'Authorization': `Bearer ${jwtToken}`} })
         console.log(response.data);
         let chElement=document.getElementById('dataElement');
         chElement.innerHTML=''
@@ -65,11 +55,11 @@ function getDataExpenses(){
             tempElement.innerHTML=`<div class='data-item-container'>${response.data[i].expense} => ${response.data[i].dicription} => ${response.data[i].expenses}</div>
             <button class='data-delete-button-container' onclick="deleteData(event,'${response.data[i].id}')">Delete</button>`;
             chElement.prepend(tempElement);
-        }
-     })
-  //print data here
+        }  
  }catch(err){
-    console.log('err')
+    if(err.response.status==401){
+    window.location.href="../login/login.html"
+    }
  }
 }
 
@@ -143,22 +133,34 @@ document.getElementById('rzp-button1').onclick = function(e){
 
 
 
-function leaderboard(){
-   
-    axios.get('http://localhost:3000/leaderboard')
-    
-    .then(res=>{
-       
+async function leaderboard(){
+    const jwtToken=localStorage.getItem('jwtToken');
+    try{
+        const res= await axios.get('http://localhost:3000/leaderboard',{headers:{'Authorization' : `Bearer ${jwtToken}`}})
         let data =res.data
-       
         const ele = document.getElementById('leederboard');
         ele.id='leederboards'
-         ele.innerHTML='<h2 class="leaderboard-heading">LEADER BOARD</h2>';
+        ele.innerHTML='<h2 class="leaderboard-heading">LEADER BOARD</h2>';
         for (let i = 0; i < data.length; i++) {
             let li = document.createElement('div');
             li.innerHTML = `${data[i].name} ${data[i].totalamount}`;
             ele.appendChild(li);
         }
+    }catch(err){
+        if(err.response.status==401){
+             window.location.href="../login/login.html"
+        }
+    }
+}
 
-    }).catch(er=>console.log(er))
+
+
+async function dowdloadExpence(){
+    const jwtToken=localStorage.getItem('jwtToken');
+    try{
+        const data=await axios.get('http://localhost:3000/downloadButton',{headers:{'Authorization' : `Bearer ${jwtToken}`}})
+        console.log(data.data)
+    }catch(err){
+        console.log(err)
+    }
 }
